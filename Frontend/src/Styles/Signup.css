@@ -1,0 +1,15 @@
+.signup-page {
+    background-color: #F3F9F2;
+    min-height: 100vh;
+}
+
+.signup-image {
+  max-width: 300px;
+  height: auto;
+}
+
+.signup-btn {
+    background-color: #099c4e;
+    color: white;
+    border: none;
+}
