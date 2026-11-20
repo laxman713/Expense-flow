@@ -21,6 +21,14 @@ function Signin() {
     }
   try{
       const result = await signInuser(email,password);
+       console.log("Login successful:", result.message);
+    console.log("Token received:", !!result.token);
+
+    sessionStorage.setItem("token", result.token);
+
+    console.log("Token stored:", !!sessionStorage.getItem("token"));
+    sessionStorage.setItem("token", result.token);
+
     console.log(result.message);
   }catch(err){
 

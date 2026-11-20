@@ -1,9 +1,14 @@
 const express = require('express');
 const app = express();
+require("dotenv").config();
 const path = require('path');
 const cors = require("cors");
 const sequelize = require("./model/db-connection");
 require("./createTables/UsersTable")
+require("./createTables/expenseTable")
+require("./createTables/assosiactions")
+const expenseRoutes = require("./routes/expenseRoute");
+
 const userRoute = require("./routes/userRoutes")
 const signInRoute = require("./routes/signInRoute")
 
@@ -19,6 +24,7 @@ app.use(express.static(
 app.use(express.json());
 app.use("/expenses",userRoute);
 app.use("/expenses",signInRoute);
+app.use("/expenses", expenseRoutes);
 
 
 // React Router fallback last
@@ -29,7 +35,7 @@ app.get("/{*splat}", (req, res) => {
 });
 
 
-sequelize.sync({alter:true}).then(()=>{
+sequelize.sync().then(()=>{
 app.listen(3000,()=>{
     console.log("Server is running on localhost:3000")
 })

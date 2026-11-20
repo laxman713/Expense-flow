@@ -4,7 +4,7 @@ import "../Styles/sidebar.css";
 function Sidebar(){
     return(
         <>
-        <div className="sidebar">
+        <div className="sidebar col-5 col-md-3">
            <ul className="list-unstyled">
               <li>
                 <i className="bi bi-house-door me-2"></i>
