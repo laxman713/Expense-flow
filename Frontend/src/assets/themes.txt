@@ -1,0 +1,30 @@
+Color palette
+
+Navbar
+
+#1E293B
+
+
+Sidebar
+
+#273449
+
+
+Accent / Icons
+
+#38BDF8
+
+
+Buttons
+
+#0284C7
+
+
+Main Background
+
+#F1F5F9
+
+
+Text
+
+#1E293B
