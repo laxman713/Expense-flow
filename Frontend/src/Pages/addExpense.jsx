@@ -1,11 +1,12 @@
 
 import Navbar from "../components/Navbar";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "../components/sidebar";
 import "../Styles/addExpense.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import addExpense from "../services/addExpenseService";
-
+import { useLocation } from "react-router-dom";
+import expenseUpdateService from "../services/updateExpenseService";
 // Get current local date and time
 function getCurrentDateTime() {
     const now = new Date();
@@ -37,6 +38,11 @@ function AddExpense() {
     const [isOpen, setIsOpen] = useState(false);
 
     const [expense, setExpense] = useState(getInitialExpense);
+      
+    const location = useLocation();
+    const editExpense = location.state?.expense;
+    console.log("Expense recieved for editing:", editExpense)
+
 
     function handleChange(e) {
         const { name, value } = e.target;
@@ -48,6 +54,18 @@ function AddExpense() {
             [name]: value
         }));
     }
+  useEffect(() => {
+    if (editExpense) {
+        setExpense({
+            title: editExpense.Title,
+            amount: editExpense.amount,
+            category: editExpense.category,
+            date: editExpense.date?.slice(0, 10),
+            time: editExpense.time?.slice(0, 5),
+            description: editExpense.description
+        });
+    }
+}, [editExpense]);
 
     async function handleForm(e) {
         e.preventDefault();
@@ -62,19 +80,26 @@ function AddExpense() {
         }
 
         try {
-            const result = await addExpense(expense, token);
-
+            if(editExpense){
+                console.log("Updating expense ID:", editExpense.id);
+    console.log("Updated data:", expense);
+       const result = await expenseUpdateService(editExpense.id,expense);
+       console.log("Update API response:", result);
+       alert("Expense updated successfully");
+            }else{
+                const result = await addExpense(expense, token);
+           
             console.log(result.message);
             alert("Expense added successfully");
 
             // Reset form and refresh date/time
             setExpense(getInitialExpense());
+            }
 
         } catch (err) {
             console.log(err.response?.data?.message || err.message);
         }
     }
-
     return (
         <div>
             <Navbar isOpen={isOpen} setIsOpen={setIsOpen} />
@@ -230,7 +255,7 @@ function AddExpense() {
                                             style={{ backgroundColor: "#0284C7" }}
                                         >
                                             <i className="bi bi-plus-circle me-2"></i>
-                                            Add Expense
+                                            {editExpense ? "Update Expense" : "Add Expense"}
                                         </button>
 
                                     </form>

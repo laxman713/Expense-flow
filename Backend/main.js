@@ -8,6 +8,7 @@ require("./createTables/UsersTable")
 require("./createTables/expenseTable")
 require("./createTables/assosiactions")
 const expenseRoutes = require("./routes/expenseRoute");
+const paymentRoutes = require("./routes/paymentRoutes");
 
 const userRoute = require("./routes/userRoutes")
 const signInRoute = require("./routes/signInRoute")
@@ -18,6 +19,7 @@ app.use(cors({
 app.get('/',(req,res)=>{
     res.send("This is home page")
 })
+app.use(express.json());
 app.use(express.static(
     path.join(__dirname, "../frontend/dist")
 ));
@@ -25,7 +27,7 @@ app.use(express.json());
 app.use("/expenses",userRoute);
 app.use("/expenses",signInRoute);
 app.use("/expenses", expenseRoutes);
-
+app.use("/expenses/payments", paymentRoutes);
 
 // React Router fallback last
 app.get("/{*splat}", (req, res) => {
