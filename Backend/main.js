@@ -7,6 +7,7 @@ const sequelize = require("./model/db-connection");
 require("./createTables/UsersTable")
 require("./createTables/expenseTable")
 require("./createTables/assosiactions")
+require("./createTables/orders");
 const expenseRoutes = require("./routes/expenseRoute");
 const paymentRoutes = require("./routes/paymentRoutes");
 

@@ -7,6 +7,18 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import addExpense from "../services/addExpenseService";
 import { useLocation } from "react-router-dom";
 import expenseUpdateService from "../services/updateExpenseService";
+
+
+
+
+
+
+const handlePayment = async () => {
+    console.log("Buy Premium clicked");
+};
+
+
+
 // Get current local date and time
 function getCurrentDateTime() {
     const now = new Date();
@@ -24,6 +36,11 @@ function getCurrentDateTime() {
     };
 }
 
+
+
+
+
+
 function getInitialExpense() {
     return {
         title: "",
@@ -33,6 +50,9 @@ function getInitialExpense() {
         description: ""
     };
 }
+
+
+
 
 function AddExpense() {
     const [isOpen, setIsOpen] = useState(false);
@@ -54,6 +74,10 @@ function AddExpense() {
             [name]: value
         }));
     }
+
+
+
+
   useEffect(() => {
     if (editExpense) {
         setExpense({
@@ -66,6 +90,11 @@ function AddExpense() {
         });
     }
 }, [editExpense]);
+
+
+
+
+
 
     async function handleForm(e) {
         e.preventDefault();
@@ -100,6 +129,11 @@ function AddExpense() {
             console.log(err.response?.data?.message || err.message);
         }
     }
+
+
+
+
+
     return (
         <div>
             <Navbar isOpen={isOpen} setIsOpen={setIsOpen} />

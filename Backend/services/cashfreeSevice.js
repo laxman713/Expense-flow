@@ -28,7 +28,7 @@ var request = {
     },
     "order_meta": {
         "return_url": "https://www.cashfree.com/devstudio/preview/pg/web/checkout?order_id={order_id}",
-        "payment_methods": "cc,dc,upi"
+        
     },
     "order_expiry_time": formattedDate
 };
@@ -40,5 +40,19 @@ return response.data;
     throw err;
    }
 }
+const verifyPayment = async (orderId) => {
+    try {
+        const response = await cashfree.PGOrderFetchPayments(orderId);
 
-module.exports = createOrder;
+        return response.data;
+
+    } catch (err) {
+        console.log(err.response?.data || err.message);
+        throw err;
+    }
+};
+
+module.exports = {
+    createOrder,
+    verifyPayment
+};
