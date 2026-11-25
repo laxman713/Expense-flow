@@ -56,9 +56,41 @@ const getPaymentStatus = async (req, res) => {
         }
 
         const payments = await verifyPayment(orderId);
+       const successfulPayment = payments.find((payment) => {
+    return payment.payment_status === "SUCCESS" &&
+           payment.is_captured === true &&
+           payment.order_id === order.orderId &&
+           Number(payment.payment_amount) === Number(order.orderAmount) &&
+           payment.payment_currency === order.orderCurrency;
+});
 
-        res.status(200).json(payments);
+console.log(successfulPayment);
 
+console.log("Successful payment found:", !!successfulPayment);
+console.log("Current order status:", order.orderStatus);
+
+if (successfulPayment) {
+    await OrderTable.sequelize.transaction(async (transaction) => {
+
+        order.orderStatus = "SUCCESSFUL";
+        await order.save({ transaction: transaction });
+
+        const user = await userTable.findByPk(customerId, {
+            transaction: transaction
+        });
+
+        user.isPremium = true;
+        await user.save({ transaction: transaction });
+
+    });
+}
+
+const user = await userTable.findByPk(customerId);
+
+res.status(200).json({
+    orderStatus: order.orderStatus,
+    isPremium: user.isPremium
+});
     } catch (err) {
         console.log(err.response?.data || err.message);
 

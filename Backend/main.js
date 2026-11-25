@@ -13,6 +13,7 @@ const paymentRoutes = require("./routes/paymentRoutes");
 
 const userRoute = require("./routes/userRoutes")
 const signInRoute = require("./routes/signInRoute")
+const leadBoardRoutes = require("./routes/leadBoardRoute");
 
 app.use(cors({
     origin: "http://localhost:5173"
@@ -29,6 +30,7 @@ app.use("/expenses",userRoute);
 app.use("/expenses",signInRoute);
 app.use("/expenses", expenseRoutes);
 app.use("/expenses/payments", paymentRoutes);
+app.use("/expenses", leadBoardRoutes);
 
 // React Router fallback last
 app.get("/{*splat}", (req, res) => {

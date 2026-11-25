@@ -5,6 +5,7 @@ import {BrowserRouter, Routes, Route} from "react-router-dom";
 import Signin  from './Pages/Signin';
 import AddExpense from './Pages/addExpense';
 import ViewReports from "./Pages/viewReports";
+import Leaderboard from './Pages/LeaderBoard';
 function App() {
   
 
@@ -16,6 +17,7 @@ function App() {
       <Route path="/signin" element={<Signin/>}/>
       <Route path="/addExpense" element={<AddExpense/>}/>
       <Route path="/view-reports" element={<ViewReports />} />
+      <Route path="/leaderboard" element={<Leaderboard/>}/>
       </Routes>
 
      </BrowserRouter>

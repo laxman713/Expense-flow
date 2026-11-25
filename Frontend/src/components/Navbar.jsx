@@ -2,8 +2,48 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "../Styles/sidebar.css";
 import { load } from "@cashfreepayments/cashfree-js";
 import axios from "axios";
+import { useState,useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Navbar({ isOpen, setIsOpen }) {
+  const [isPremium, setIsPremium] = useState(false);
+
+  useEffect(() => {
+
+    const fetchPremiumStatus = async () => {
+        try {
+            const token = sessionStorage.getItem("token");
+
+            if (!token) {
+                return;
+            }
+
+            const response = await axios.get(
+                "http://localhost:3000/expenses/payments/users/premium-status",
+                {
+                    headers: {
+                        Authorization: `Bearer ${token}`
+                    }
+                }
+            );
+           console.log("Premium API response:", response.data);
+
+            setIsPremium(response.data.isPremium);
+
+        } catch (err) {
+            console.log(err);
+        }
+    };
+
+    fetchPremiumStatus();
+
+}, []);
+
+
+
+
+
+
 
   function handleBtn() {
     setIsOpen(!isOpen);
@@ -42,9 +82,42 @@ let checkoutOptions = {
     redirectTarget: "_modal"
 };
         await cashfree.checkout(checkoutOptions);
+    const orderId = response.data.order_id;
 
+const verificationResponse = await axios.get(
+    `http://localhost:3000/expenses/payments/verify/${orderId}`,
+    {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    }
+);
+
+console.log("Payment verification:", verificationResponse.data);
 
   };
+
+
+
+
+const navigate = useNavigate();
+
+  const handleLeaderboard = async () => {
+
+  const token = sessionStorage.getItem("token");
+  const response =await axios.get("/expenses/leaderboard",{
+    headers:{
+      Authorization: `Bearer ${token}`
+    }
+  })
+  console.log(response.data);
+  navigate("/leaderboard");
+
+};
+
+
+
+
 
   return (
     <>
@@ -68,14 +141,29 @@ let checkoutOptions = {
 
           <div className="d-flex align-items-center gap-3">
 
-            <button
-              type="button"
-              className="btn btn-warning"
-              onClick={handlePayment}
-            >
-              <i className="bi bi-star-fill me-2"></i>
-              Buy Premium
-            </button>
+           {isPremium ? (
+    <>
+        <span className="text-warning fw-bold">
+            <i className="bi bi-star-fill me-2"></i>
+            Premium User
+        </span>
+
+        <button type="button" className="btn btn-primary"
+        onClick={handleLeaderboard}>
+            <i className="bi bi-trophy-fill me-2"></i>
+            Show Leaderboard
+        </button>
+    </>
+) : (
+    <button
+        type="button"
+        className="btn btn-warning"
+        onClick={handlePayment}
+    >
+        <i className="bi bi-star-fill me-2"></i>
+        Buy Premium
+    </button>
+)}
 
             <i className="bi bi-person-circle text-white fs-3"></i>
 
