@@ -45,7 +45,6 @@ function getInitialExpense() {
     return {
         title: "",
         amount: "",
-        category: "",
         ...getCurrentDateTime(),
         description: ""
     };
@@ -83,7 +82,6 @@ function AddExpense() {
         setExpense({
             title: editExpense.Title,
             amount: editExpense.amount,
-            category: editExpense.category,
             date: editExpense.date?.slice(0, 10),
             time: editExpense.time?.slice(0, 5),
             description: editExpense.description
@@ -191,38 +189,8 @@ function AddExpense() {
                                                 step="0.01"
                                                 required
                                             />
-                                        </div>
-
-                                        <label htmlFor="category" className="form-label">
-                                            Category
-                                        </label>
-
-                                        <div className="input-group">
-                                            <span className="input-group-text">
-                                                <i className="bi bi-tags"></i>
-                                            </span>
-
-                                            <select
-                                                id="category"
-                                                className="form-select"
-                                                name="category"
-                                                value={expense.category}
-                                                onChange={handleChange}
-                                                required
-                                            >
-                                                <option value="" disabled>
-                                                    Select Category
-                                                </option>
-                                                <option value="Food">Food</option>
-                                                <option value="Travel">Travel</option>
-                                                <option value="Shopping">Shopping</option>
-                                                <option value="Bills">Bills</option>
-                                                <option value="Health">Health</option>
-                                                <option value="Entertainment">Entertainment</option>
-                                                <option value="Education">Education</option>
-                                                <option value="Other">Other</option>
-                                            </select>
-                                        </div>
+                                        </div>                                                
+                                              
 
                                         <label className="form-label">
                                             Date :

@@ -1,7 +1,10 @@
 const expenseServices = require("../services/expenseService")
+const { generateCategory } = require("../services/aiService");
 
 const expenseControllerfun = async (req,res)=>{
-    const {title,amount,category,date,time,description} = req.body;
+    const {title,amount,date,time,description} = req.body;
+    const category = await generateCategory(title);
+    console.log("AI generated category:", category);
    const userId = req.user.userId;
    console.log("Request body:", req.body);
 console.log("Title from controller:", title);
