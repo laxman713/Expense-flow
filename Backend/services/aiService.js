@@ -1,10 +1,11 @@
-const { GoogleGenAI } = require("@google/genai");
+// const { GoogleGenAI } = require("@google/genai");
 
-console.log("Gemini API key loaded:", Boolean(process.env.GEMINI_API_KEY));
+// console.log("Gemini API key loaded:", Boolean(process.env.GEMINI_API_KEY));
 
-const ai = new GoogleGenAI({
-    apiKey: process.env.GEMINI_API_KEY
-});
+// const ai = new GoogleGenAI({
+//     apiKey: process.env.GEMINI_API_KEY
+// });
+const axios = require("axios");
 
 const generateCategory = async (title) => {
     try {
@@ -19,18 +20,31 @@ const generateCategory = async (title) => {
             Do not provide any explanation or additional text.
         `;
 
-        const response = await ai.models.generateContent({
-            model: "gemma-4-26b-a4b-it",
-            contents: prompt
-        });
+         const response = await axios.post(
+           "https://gen.pollinations.ai/v1/chat/completions",
+        {
+            model:"openai/gpt-5.4-nano",
+            messages:[
+                {
+                role:"user",
+                content: prompt
+                }
+            ]
+        },
+    {
+        headers:{
+            Authorization: `Bearer ${process.env.POLLINATIONS_API_KEY}`,
+            "Content-Type":"application/json"
+        },
+        timeout: 15000
+    })       
 
-        const category = response.text.trim();
-        console.log(category);
+        const category = response.data.choices[0].message.content.trim();        console.log(category);
         return category;
 
     } catch (err) {
         console.log("AI categorization failed:", err.message);
-         console.log("Error status:", err.status);
+        console.log("Error status:", err.status);
         console.log("Gemini failed:", err.message);
         return "Uncategorized";
     }

@@ -2,7 +2,8 @@ const {Sequelize}= require('sequelize');
 
 const sequelize = new Sequelize('expenseFlow','root','Laxmanaliasbunny*525',{
    host: "localhost",
-   dialect: "mysql"
+   dialect: "mysql",
+   logging : false
 });
 
 (async ()=>{try{

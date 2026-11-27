@@ -8,6 +8,7 @@ require("./createTables/UsersTable")
 require("./createTables/expenseTable")
 require("./createTables/assosiactions")
 require("./createTables/orders");
+require("./services/emailService");
 const expenseRoutes = require("./routes/expenseRoute");
 const paymentRoutes = require("./routes/paymentRoutes");
 

@@ -3,6 +3,7 @@ import "../Styles/Signin.css"
 import expenseImage from "../assets/Expense_trcker.png"
 import "bootstrap-icons/font/bootstrap-icons.css";
 import signInuser from "../services/signinService";
+import axios from "axios";
 
 function Signin() {
     const [email,setEmail] = useState("");
@@ -41,6 +42,31 @@ if (err.response?.status === 404) {
             console.log("Password mismatch");
         }}  
  }
+
+
+
+
+    async function handleForgotPassword() {
+        if (!email.trim()) {
+            alert("Please enter your email address");
+            return;
+        }
+
+        try {
+            const response = await axios.post(
+                "http://localhost:3000/expenses/users/forgot-password",
+                {
+                    email: email
+                }
+            );
+
+            alert(response.data.message);
+
+        } catch (err) {
+            console.log(err.response?.data);
+            alert("Unable to process the request");
+        }
+    }
 
 
 
@@ -106,6 +132,16 @@ if (err.response?.status === 404) {
                                                 />
                                             </div>
                                             <br></br>
+                                            <div className="text-end mb-3">
+                                                <button
+                                                    type="button"
+                                                    onClick={handleForgotPassword}
+                                                    className="btn btn-link text-decoration-none small fw-medium"
+                                                    style={{ color: "#0284C7" }}
+                                                >
+                                                    Forgot Password?
+                                                </button>
+                                            </div>
 
                                             <button type="submit" className="btn signup-btn w-100 ">
                                                 <i className="bi bi-person-plus me-2" ></i>
