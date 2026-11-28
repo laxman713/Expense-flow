@@ -3,12 +3,14 @@ import { useState,  useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import getExpenseService from "../services/expenseGetService";
 import deleteExpenseService from "../services/expenseDeleteService";
+import expenseDownloadService from "../services/expenseDownlaodService"
 
 function ViewReports() {
 
     
     const navigate = useNavigate();
-
+    const [downloading, setDownloading] = useState(false);
+    const [downloadError, setDownloadError] = useState("");
     const [expenses, setExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editExpense, setEditExpense] = useState(null);
@@ -134,7 +136,68 @@ function ViewReports() {
     for (let i = 1; i <= totalPages; i++) {
         pages.push(i);
     }
+    
 
+    const handleDownload = async () => {
+
+        setDownloading(true);
+        setDownloadError("");
+
+        try {
+
+            const blob = await expenseDownloadService(year, month);
+
+            const url = URL.createObjectURL(blob);
+
+            const link = document.createElement("a");
+
+            link.href = url;
+
+            if (!month || month === "all") {
+
+                link.download = `ExpenseFlow_${year}.csv`;
+
+            } else {
+
+                const formattedMonth = String(month).padStart(2, "0");
+
+                link.download = `ExpenseFlow_${year}_${formattedMonth}.csv`;
+            }
+
+            document.body.appendChild(link);
+
+            link.click();
+
+            document.body.removeChild(link);
+
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 1000);
+
+        } catch (err) {
+
+            console.log("Download failed:", err);
+
+            if (err.response?.status === 403) {
+
+                setDownloadError("Downloading reports is a premium feature.");
+
+            } else if (err.response?.status === 401) {
+
+                setDownloadError("You are not authorized to download reports.");
+
+            } else {
+
+                setDownloadError("Failed to download expenses. Please try again.");
+
+            }
+
+        } finally {
+
+            setDownloading(false);
+
+        }
+    };
 
 
     return (
@@ -142,6 +205,27 @@ function ViewReports() {
             <div className="container mt-4">
 
                 <h2 className="mb-4">View Reports</h2>
+                <button
+                    className="btn text-white mb-2"
+                    style={{ backgroundColor: "#0284C7" }}
+                    onClick={handleDownload}
+                    disabled={downloading}
+                >
+
+                    {downloading ? (
+                        <>
+                            <span className="spinner-border spinner-border-sm me-2"></span>
+                            Downloading...
+                        </>
+                    ) : (
+                        <>
+                            <i className="bi bi-download me-2"></i>
+                            Download CSV
+                        </>
+                    )}
+
+                </button>
+              
 
                 <div className="row mb-4">
 
