@@ -1,7 +1,8 @@
 const expenses = require("../createTables/expenseTable");
-const { Op } = require("sequelize");
+const { Op,fn,col } = require("sequelize");
 
-const expenseGet =async (userId,year,month)=>{
+const expenseGet =async (userId,year,month,page,limit)=>{
+    const offset = (page-1)*limit;
     const whereCondition = {
         userId:userId
     };
@@ -32,11 +33,55 @@ const expenseGet =async (userId,year,month)=>{
             };
         }
     }
-    const getQuery =await expenses.findAll({
-        where:whereCondition
-        
+    const getQuery =await expenses.findAndCountAll({
+        where:whereCondition,
+        limit: limit,
+        offset:offset,
+        order: [["id","DESC"]]
     })
-    return getQuery;
-}
 
+    const totalAmount = await expenses.sum("amount",{
+        where:whereCondition
+    });
+
+    const highestCategory = await expenses.findAll({
+        attributes:[
+            "category",
+            [fn("SUM",col("amount")),"totalAmount"]
+        ],
+        where:whereCondition,
+        group: ["category"],
+        order:[
+            [fn("SUM",col("amount")),"DESC"],
+            ["category","ASC"]
+        ],
+        limit:1,
+        raw: true
+    });
+    let categoryName = "None";
+    let categoryAmount = 0;
+
+    if (highestCategory.length > 0) {
+        categoryName = highestCategory[0].category;
+        categoryAmount = Number(highestCategory[0].totalAmount);
+    }
+    console.log(highestCategory);
+    const totalPages = Math.ceil(getQuery.count/limit);
+    return {
+        expenses: getQuery.rows,
+        pagination: {
+            currentPage: page,
+            limit: limit,
+            totalExpenses: getQuery.count,
+            totalPages: totalPages
+        },
+        summary: {
+            totalAmount: Number(totalAmount || 0),
+            highestCategory: categoryName,
+            highestCategoryAmount: categoryAmount
+        }
+
+    };
+}
 module.exports = expenseGet
+

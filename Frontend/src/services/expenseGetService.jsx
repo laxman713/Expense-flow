@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const getExpenseService = async (year, month) => {
+const getExpenseService = async (year, month,page,limit) => {
 
     const token = sessionStorage.getItem("token");
 
@@ -12,7 +12,9 @@ const getExpenseService = async (year, month) => {
             },
             params: {
                 year: year,
-                month: month
+                month: month,
+                page:page,
+                limit:limit
             }
         }
     );

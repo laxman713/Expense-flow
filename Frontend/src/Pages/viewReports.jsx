@@ -1,18 +1,24 @@
 import ExpenseCard from "../components/expenseCard";
-import { useState, useRef, useEffect } from "react";
+import { useState,  useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import getExpenseService from "../services/expenseGetService";
 import deleteExpenseService from "../services/expenseDeleteService";
 
 function ViewReports() {
 
-    const observerRef = useRef(null);
+    
     const navigate = useNavigate();
 
-    const [visible, setVisible] = useState(2);
     const [expenses, setExpenses] = useState([]);
     const [loading, setLoading] = useState(true);
     const [editExpense, setEditExpense] = useState(null);
+    const [page, setPage] = useState(1);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalRecords, setTotalRecords] = useState(0);
+    const [totalExpenses, setTotalExpenses] = useState(0);
+    const [highestCategory, setHighestCategory] = useState("None");
+    const [highestAmount, setHighestAmount] = useState(0);
+    const limit = 2;
 
     const [year, setYear] = useState(new Date().getFullYear());
     const [month, setMonth] = useState("all");
@@ -79,13 +85,21 @@ function ViewReports() {
         const fetchExpenses = async () => {
 
             setLoading(true);
-            setVisible(2);
+           
 
             try {
-                const result = await getExpenseService(year, month);
+                const result = await getExpenseService(year, month,page,limit);
 
                 if (!ignore) {
                     setExpenses(result);
+                    setExpenses(result.expenses);
+
+                    setTotalPages(result.pagination.totalPages);
+                    setTotalRecords(result.pagination.totalExpenses);
+
+                    setTotalExpenses(result.summary.totalAmount);
+                    setHighestCategory(result.summary.highestCategory);
+                    setHighestAmount(result.summary.highestCategoryAmount);
                 }
 
             } catch (error) {
@@ -93,6 +107,11 @@ function ViewReports() {
 
                 if (!ignore) {
                     setExpenses([]);
+                    setTotalPages(0);
+                    setTotalRecords(0);
+                    setTotalExpenses(0);
+                    setHighestCategory("None");
+                    setHighestAmount(0);
                 }
 
             } finally {
@@ -108,37 +127,14 @@ function ViewReports() {
             ignore = true;
         };
 
-    }, [year, month]);
+    }, [year, month,page]);
 
+    const pages = [];
 
-    useEffect(() => {
-
-        if (!observerRef.current || loading) {
-            return;
-        }
-
-        const observer = new IntersectionObserver((entries) => {
-
-            const entry = entries[0];
-
-            if (entry.isIntersecting) {
-                setVisible((prev) => prev + 10);
-            }
-
-        });
-
-        observer.observe(observerRef.current);
-
-        return () => observer.disconnect();
-
-    }, [visible, loading, expenses.length]);
-
-
-    let totalExpenses = 0;
-
-    for (let i = 0; i < expenses.length; i++) {
-        totalExpenses = totalExpenses + Number(expenses[i].amount);
+    for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
     }
+
 
 
     return (
@@ -158,7 +154,7 @@ function ViewReports() {
                         <select
                             className="form-select"
                             value={year}
-                            onChange={(e) => setYear(e.target.value)}
+                            onChange={(e) => {setYear(e.target.value);setPage(1)}}
                         >
                             {years.map((item) => (
                                 <option key={item} value={item}>
@@ -178,7 +174,7 @@ function ViewReports() {
                         <select
                             className="form-select"
                             value={month}
-                            onChange={(e) => setMonth(e.target.value)}
+                            onChange={(e) => {setMonth(e.target.value),setPage(1)}}
                         >
                             <option value="all">All Months</option>
 
@@ -193,18 +189,44 @@ function ViewReports() {
 
                 </div>
                 {!loading && (
-                    <div
-                        className="card mb-4 p-4"
-                        style={{
-                            backgroundColor: "#1E293B",
-                            color: "#FFFFFF"
-                        }}
-                    >
-                        <h5>Total Expenses</h5>
+                    <div className="row mb-4">
 
-                        <h2 style={{ color: "#38BDF8" }}>
-                            ₹{totalExpenses.toFixed(2)}
-                        </h2>
+                        <div className="col-12 col-md-6 mb-3">
+                            <div
+                                className="card p-4 h-100"
+                                style={{
+                                    backgroundColor: "#1E293B",
+                                    color: "#FFFFFF"
+                                }}
+                            >
+                                <h5>Total Expenses</h5>
+
+                                <h2 style={{ color: "#38BDF8" }}>
+                                    ₹{totalExpenses.toFixed(2)}
+                                </h2>
+                            </div>
+                        </div>
+
+                        <div className="col-12 col-md-6 mb-3">
+                            <div
+                                className="card p-4 h-100"
+                                style={{
+                                    backgroundColor: "#273449",
+                                    color: "#FFFFFF"
+                                }}
+                            >
+                                <h5>Highest Spending Category</h5>
+
+                                <h3 style={{ color: "#38BDF8" }}>
+                                    {highestCategory}
+                                </h3>
+
+                                <h5>
+                                    ₹{highestAmount.toFixed(2)}
+                                </h5>
+                            </div>
+                        </div>
+
                     </div>
                 )}
 
@@ -226,7 +248,7 @@ function ViewReports() {
                     </div>
                 )}
 
-                {!loading && expenses.slice(0, visible).map((expense) => (
+                {!loading && expenses.map((expense) => (
                     <ExpenseCard
                         key={expense.id}
                         expense={expense}
@@ -235,9 +257,45 @@ function ViewReports() {
                     />
                 ))}
 
-                {!loading && visible < expenses.length && (
-                    <div ref={observerRef}></div>
+                {!loading && totalPages > 1 && (
+                    <nav>
+                        <ul className="pagination justify-content-center mt-4">
+                            <li className="page-item">
+                                <button
+                                    className="page-link"
+                                    disabled={page === 1}
+                                    onClick={() => setPage(page - 1)}
+                                >
+                                    Previous
+                                </button>
+                            </li>
+                            {pages.map((item) => (
+                                <li
+                                    key={item}
+                                    className={`page-item ${page === item ? "active" : ""}`}
+                                >
+                                    <button
+                                        className="page-link"
+                                        onClick={() => setPage(item)}
+                                    >
+                                        {item}
+                                    </button>
+                                </li>
+                            ))}
+                            <li className="page-item">
+                                <button
+                                    className="page-link"
+                                    disabled={page >= totalPages}
+                                    onClick={() => setPage(page + 1)}
+                                >
+                                    Next
+                                </button>
+                            </li>
+                        </ul>
+                    </nav>
                 )}
+
+               
 
             </div>
         </>
